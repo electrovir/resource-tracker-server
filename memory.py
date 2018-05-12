@@ -4,6 +4,7 @@
 
 # experimentations on tracking memory utilization
 
+# TODO: rewrite all this in Node
 import subprocess
 import re
 
@@ -33,7 +34,7 @@ for row in range(1,len(vmLines)-2):
     rowElements = sep.split(rowText)
     vmStats[(rowElements[0])] = int(rowElements[1].strip('\.')) * 4096
 
-# TODO: make this depend on system stats
+# TODO: make this depend on system stats (not hard coded in)
 total = 16
 # I've determined that the following values agree with values that Monit reports
 wired = float(vmStats['Pages wired down'])/pow(1024,3)
