@@ -2,7 +2,14 @@
 
 ## Status
 
-Trying to figure out how to gather system resource utilization through node packages or system utilities. This is proving more difficult than I expected...
+Critical system resource data gathering is in preliminary stages. A barebones server is functioning.
+
+## Starting Server
+
+```Bash
+cd resource-tracker-server
+node server.js
+```
 
 ## Track the following
 
@@ -37,7 +44,7 @@ This will also remove the need for all the different monitoring tools I have... 
   * [Daisy Disk](https://daisydiskapp.com) for disk space usage. (Not good for quick glances but very beautiful, accurate, and powerful.)
   * [Coconut Battery](https://www.coconut-flavour.com/coconutbattery/) for battery condition. (Not much better at-a-glance features than the built-in menubar battery monitor.)
 
-I hope to deliver the *same* at-a-glance features as all of these in a customizeable, easy to view package.
+I hope to deliver the *same* at-a-glance features as all of these in a single customizeable, easy to view package.
 
 ## Troubles
 
