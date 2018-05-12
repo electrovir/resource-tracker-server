@@ -2,6 +2,8 @@
 
 # MODIFIED FROM https://apple.stackexchange.com/a/4296/216714
 
+# experimentations on tracking memory utilization
+
 import subprocess
 import re
 
@@ -31,14 +33,15 @@ for row in range(1,len(vmLines)-2):
     rowElements = sep.split(rowText)
     vmStats[(rowElements[0])] = int(rowElements[1].strip('\.')) * 4096
 
+# TODO: make this depend on system stats
 total = 16
+# I've determined that the following values agree with values that Monit reports
 wired = float(vmStats['Pages wired down'])/pow(1024,3)
 active = float(vmStats['Pages active'])/pow(1024,3)
 compressed = float(vmStats['Pages occupied by compressor'])/pow(1024,3)
 used = active + wired
 free = total - wired - active - compressed
 percent = (total-free) / total
-
 
 print 'wired:\t\t%.2f' % wired
 print 'active:\t\t%.2f' % active
@@ -51,15 +54,3 @@ print '--------------------------------'
 
 for key in vmStats:
     print(key + ':\t\t%.3f GB' % ( float(vmStats[key])/pow(1024,3)))
-
-# print 'Wired Memory:\t\t%.3f GB' % ( float(vmStats["Pages wired down"])/1024/1024/1024 )  # accurate
-# print('Active Memory:\t\t%.3f GB' % ( float(vmStats["Pages active"])/1024/1024/1024 ))    # off by .5 GB from App Memory (too low)
-# print('Inactive Memory:\t%.3f GB' % ( float(vmStats["Pages inactive"])/1024/1024/1024 ))  # no idea where this comes from
-# print('Free Memory:\t\t%.3f GB' % ( float(vmStats["Pages free"])/1024/1024/1024 ))        # or this
-# print('compressed:\t\t%.3f GB' % ( float(vmStats["Compressions"])/1024/1024/1024 ))       # what?
-# print('Real Mem Total (ps):\t%.3f GB' % ( rssTotal/1024/1024/1024 ))                      # off by .1 GB (too high)
-# 
-# Pages purged: free
-# Pages active: active
-# Pages wired down: wired
-# Pages occupied by compressor: compressed
