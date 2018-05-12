@@ -1,0 +1,22 @@
+{
+  "name": "resource-tracker-server",
+  "version": "0.1.0",
+  "description": "## Status",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/electrovir/resource-tracker-server.git"
+  },
+  "author": "electrovir",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/electrovir/resource-tracker-server/issues"
+  },
+  "homepage": "https://github.com/electrovir/resource-tracker-server#readme",
+  "dependencies": {
+    "node-os-utils": "^1.0.7"
+  }
+}
