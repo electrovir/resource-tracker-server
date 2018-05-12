@@ -30,12 +30,12 @@ Trying to figure out how to gather system resource utilization through node pack
 The activity monitor is great. But I want a more visual representation of its data. I want it served up on a server so I can use a web GUI to present the data. This will also allow me to view the data on a phone or tablet on my LAN.
 
 This will also remove the need for all the different monitoring tools I have... (too many).
-  * Activity Monitor itself for the cpu usage dock icon and it's entire application window. (Not very responsive UI. Not easy to read at a glance. However, *very* powerful.)
+  * Activity Monitor itself for the cpu usage dock icon and it's entire application window. (Not very responsive UI. Not easy to read at-a-glance. However, *very* powerful.)
   * [MenuMeters](https://github.com/yujitach/MenuMeters) for network traffic in the menubar. (It's tiny.)
   * [Monit](https://mmonit.com/widget/) for memory percent usage and disk usage in the Notification Center. (Annoying to access.)
-  * ``top`` in the Terminal. (Contains *way* too much information.)
-  * [Daisy Disk](https://daisydiskapp.com) for disk space usage. Beautiful, accurage, and powerful tool but not good for quick glances.
-  * [Coconut Battery](https://www.coconut-flavour.com/coconutbattery/) for battery condition.
+  * ``top`` in the Terminal. (Contains *way* too much information, non-visual.)
+  * [Daisy Disk](https://daisydiskapp.com) for disk space usage. (Not good for quick glances but very beautiful, accurate, and powerful.)
+  * [Coconut Battery](https://www.coconut-flavour.com/coconutbattery/) for battery condition. (Not much better at-a-glance features than the built-in menubar battery monitor.)
 
 I hope to deliver the *same* at-a-glance features as all of these in a customizeable, easy to view package.
 
