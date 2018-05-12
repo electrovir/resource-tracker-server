@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <title>
+    Resource Tracker Server
+  </title>
+  <style>
+    body {
+      text-align: center;
+      color: #3CF;
+      background-color: black;
+      font-family: verdana;
+    }
+    #response_json {
+      width: 200px;
+      height: 100px;
+      border: solid 2px #3CF;
+      padding: 5px;
+      background-color: rgba(0,0,0,0);
+      color: #3CF;
+    }
+  </style>
+</head>
+<body>
+  TRACKING THE THINGS YO
+  <br>
+  <br>
+  <textarea id="response_json">
+    
+  </textarea>
+  
+  <script>
+    window.fetch('/data')
+      .then(response => response.json())
+      .then(jsonData => {
+        document.getElementById('response_json').value = JSON.stringify(jsonData, null, 2);
+      });
+  </script>
+</body>
+</html>

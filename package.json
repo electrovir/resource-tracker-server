@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/electrovir/resource-tracker-server#readme",
   "dependencies": {
+    "express": "^4.16.3",
     "node-os-utils": "^1.0.7"
   }
 }
