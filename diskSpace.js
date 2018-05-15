@@ -1,5 +1,7 @@
 const child_process = require('child_process');
-const convertUnit = require('./byte_unit_converter.js');
+// disk space is reported with 1000^3 for GB, memory uses 1024
+const BYTE_DIVISOR = 1000;
+const convertUnit = require('./byte_unit_converter.js').bind(null, BYTE_DIVISOR);
 
 function getDiskSpace(callback) {
 
@@ -63,8 +65,6 @@ const DESIRED_KEYS = [
   'Volume Free Space',
   'Device Location',
 ];
-  // why not 1024 you ask? idk! lol! for memory I have to use 1024
-const BYTE_DIVISOR = 1000;
 
 // THIS MUTATES THE OBJECT IT IS PASSED
 // for the sake of performance
@@ -77,7 +77,7 @@ function makeReadable(info) {
     else if ((key === 'Total Size' || key === 'Volume Free Space') && info[key]) {
       value = Number(/^.+?\((\d+) Bytes\).+$/.exec(info[key])[1]);
       
-      info[key] = convertUnit(BYTE_DIVISOR, value);
+      info[key] = convertUnit(value);
     }
   });
   return info;
