@@ -2,7 +2,6 @@ const child_process = require('child_process');
 const BYTE_DIVISOR = 1024;
 const convertUnit = require('./byte_unit_converter.js').bind(null, BYTE_DIVISOR);
 
-
 const UNIT_SIZES = [
   'B',
   'kB', 
@@ -13,28 +12,34 @@ const UNIT_SIZES = [
   'EB' // this should be big enough...
 ];
 
+let global_totalMemory;
+
 // Ported into NodeJS from python: https://apple.stackexchange.com/a/4296/216714
 
-function getMemoryUsage(callback) {
+function getMemoryUsage(callback, forceRecalculateTotalMemory = false) {
   child_process.exec('vm_stat', (vm_error, vms_stdout, vm_stderr) => {
     if (vm_error) {
       throw new Error('ps execution error:' + vm_error);
     }
-    child_process.exec('system_profiler SPHardwareDataType | grep "  Memory:"', (sys_error, sys_stdout, sys_sterr) => {
-      if (sys_error) {
-        throw new Error('system_profiler error:' + sys_error);
-      }
+    // only spend time calculating the total memory once
+    if (!global_totalMemory || forceRecalculateTotalMemory) {
+      child_process.exec('system_profiler SPHardwareDataType | awk \'/Memory:/ {print $2,$3;}\'', (sys_error, sys_stdout, sys_sterr) => {
+        if (sys_error) {
+          throw new Error('system_profiler error:' + sys_error);
+        }
+        
+        const totalText = sys_stdout.split(' ');
+        global_totalMemory = {
+          value: Number(totalText[0].trim()),
+          unit: UNIT_SIZES.indexOf(totalText[1].trim())
+        };
       
-      const totalText = /Memory: (\d+) (\w+)/.exec(sys_stdout);
-      const totalMemory = {
-        value: Number(totalText[1]),
-        unit: UNIT_SIZES.indexOf(totalText[2])
-      };
-      
-      console.log('total memory:', totalMemory);
-      
-      handleMemoryInfo(vms_stdout, totalMemory, callback);
-    });
+        handleMemoryInfo(vms_stdout, global_totalMemory, callback);
+      });
+    }
+    else {
+      handleMemeoryInfo(vms_stdout, global_totalMemory, callback);
+    }
   });
 }
 
@@ -58,11 +63,11 @@ function handleMemoryInfo(stdout, totalMemory, callback) {
     total: totalMemory
   };
   
-  console.log(memory);
-  
   if (callback) {
     callback(memory);
   }
 }
 
-getMemoryUsage();
+module.exports = {
+  getMemoryUsage: getMemoryUsage
+};

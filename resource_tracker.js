@@ -1,5 +1,5 @@
 const storageTracker = require('./diskSpace.js');
-// const memoryTracker = require('./memory.js');
+const memoryTracker = require('./memory.js');
 
 class ResourceTracker {
   constructor(updateDelay) {
@@ -51,8 +51,15 @@ class ResourceTracker {
     this.trackedValues.storage.devices = results;
   }
   
+  handleMemoryUsage(results) {
+    this.trackedValues.memory.usage = results;
+    this.trackedValues.memory.total = results.total;
+    delete this.trackedValues.memory.usage.total;
+  }
+  
   updateValues() {
     storageTracker.getDiskSpace(this.handleDiskSpace.bind(this));
+    memoryTracker.getMemoryUsage(this.handleMemoryUsage.bind(this));
   }
 }
 
