@@ -58,5 +58,5 @@ I hope to deliver the *same* at-a-glance features as all of these in a single cu
   * ``node-os-utils`` does not correctly report memory usage, at least on Mac.
   * ``node-os-utils`` ``netstat.inOut()`` not supported.
   * Many disagreements from different apps on disk space usage.
-
-Maybe I should read the Activity Monitor documentation. Does that exist?
+  * macOS's memory management is funky. How do I properly measure it even? Modern macOS dishes out pretty much all available memory but measures how much its getting used up with "Memory Pressure." Can I get memory pressure from a CLI?
+    * The way I'm calculating memory leaves out ``kernal_task`` memory (and likely other process memory). The way I'm currently reading gives me numbers that make sense, but including ``kernal_task`` memory does indeed lead to it reporting that I'm using nearly ``100%`` of my memory all the time, which makes sense actually (might as well use all the memory I have). Memory Pressure is indeed a better way to report this.

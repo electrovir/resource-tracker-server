@@ -30,7 +30,8 @@
   </textarea>
   
   <script>
-    window.fetch('/data')
+    // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+    fetch('/data')
       .then(response => response.json())
       .then(jsonData => {
         document.getElementById('response_json').value = JSON.stringify(jsonData, null, 2);

@@ -17,6 +17,7 @@ processLines = ps.split('\n')
 sep = re.compile('[\s]+')
 rssTotal = 0 # kB
 for row in range(1,len(processLines)):
+    print processLines[row];
     rowText = processLines[row].strip()
     rowElements = sep.split(rowText)
     try:

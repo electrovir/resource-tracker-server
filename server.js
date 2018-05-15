@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const fs = require('fs');
+const rt = require('./resource_tracker.js');
 const port = 1337;
 const mainPage = 'index.html';
 let router = express.Router();
@@ -38,3 +39,4 @@ let server = app.listen(port, (err) => {
 
   console.log(`server is listening on ${port}`);
 });
+
