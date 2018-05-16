@@ -24,18 +24,116 @@
 <body>
   TRACKING THE THINGS YO
   <br>
+  <button onclick="startServerUpdating()">
+      START
+  </button>
+  <button onclick="stopServerUpdating()">
+      STOP
+  </button>
   <br>
   <textarea id="response_json">
     
   </textarea>
+  <div id="memory">
+    <h1>
+      Memory
+    </h1>
+    <p>
+      <span style="color: red;">Wired:</span> <span id="wiredMemory"></span>
+    </p>
+    <p>
+      <span style="color: yellow;">Active:</span> <span id="activeMemory"></span>
+    </p>
+    <p>
+      <span style="color: white;">Compressed:</span> <span id="compressedMemory"></span>
+    </p>
+    <p>
+      <span style="color: grey;">Total:</span> <span id="totalMemory"></span>
+    </p>
+  </div>
+  <div id="storage">
+    <h1>
+      Storage
+    </h1>
+    <div id="storageDevices">
+      
+    </div>
+  </div>
   
   <script>
     // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-    fetch('/data')
+    const UNITS = [
+      'B',
+      'kB',
+      'MB',
+      'GB',
+      'TB',
+      'PB',
+      'EB'
+    ];
+    
+    function valueUnitToString(item, decimalPoints = 2) {
+      return item.value.toFixed(decimalPoints) + ' ' + UNITS[item.unit];
+    }
+    
+    function handleMemory(memoryData) {
+      document.getElementById('wiredMemory').innerHTML = valueUnitToString(memoryData.usage.wired);
+      document.getElementById('activeMemory').innerHTML = valueUnitToString(memoryData.usage.active);
+      document.getElementById('compressedMemory').innerHTML = valueUnitToString(memoryData.usage.compressed);
+      document.getElementById('totalMemory').innerHTML = valueUnitToString(memoryData.total);
+    }
+    
+    function handleStorage(storageData) {
+      const insertionElement = document.getElementById('storageDevices');
+      insertionElement.innerHTML = "";
+      storageData.devices.sort((a,b) => b.bootDisk).sort((a,b) => a.parent >= b.parent).map(device => {
+        let deviceElement = document.createElement('p');
+        deviceElement.innerHTML = `${device.name}: <span style="color: green;">${valueUnitToString(device.freeSpace, 0)}</span> / ${valueUnitToString(device.totalSpace, 0)}`;
+        return deviceElement;
+      }).forEach(element => insertionElement.appendChild(element));
+    }
+    
+    function handleJsonData(data) {
+      handleMemory(data.memory);
+      handleStorage(data.storage);
+      
+    }
+    
+    function getData() {
+      fetch('/data')
       .then(response => response.json())
       .then(jsonData => {
+        handleJsonData(jsonData);
         document.getElementById('response_json').value = JSON.stringify(jsonData, null, 2);
       });
+    }
+    
+    function startTimer() {
+      if (!refreshTimer) {
+        refreshTimer = setInterval(getData, 5000);
+      }
+    }
+    
+    function stopTimer() {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+      }
+      refreshTimer = undefined;
+    }
+    
+    function stopServerUpdating() {
+      clearInterval(refreshTimer);
+      fetch('/stop-updating');
+    }
+    
+    function startServerUpdating() {
+      fetch('/start-updating');
+    }
+    
+    let refreshTimer;
+    getData();
+    startTimer();
+    
   </script>
 </body>
 </html>

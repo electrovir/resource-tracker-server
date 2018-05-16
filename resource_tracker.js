@@ -1,11 +1,18 @@
 const storageTracker = require('./diskSpace.js');
 const memoryTracker = require('./memory.js');
 
+const DEFAULT_UPDATE_INTERVAL = 5000;
+const MINIMUM_UPDATE_INTERVAL = 1000;
+const SLOW_UPDATE_INTERVAL = 5;
+const MAX_UPDATE_WITHOUT_REQUEST = 5;
+
 class ResourceTracker {
-  constructor(updateDelay) {
-    this.intervalId = undefined;
+  constructor(updateDelay = DEFAULT_UPDATE_INTERVAL) {
+    this.intervalTimer = undefined;
     this.updateDelay = updateDelay;
-    this.trackedValues = {
+    this.updateCounter = 0;
+    this.updatesSinceLastRequest = 0;
+    this._stats = {
       memory: {
         
       },
@@ -25,41 +32,67 @@ class ResourceTracker {
     };
   }
   
+  get trackedValues() {
+    this.updatesSinceLastRequest = 0;
+    return this._stats;
+  }
+  
   changeDelay(updateDelay) {
-    this.updateDelay = updateDelay;
+    if (updateDelay >= MINIMUM_UPDATE_INTERVAL) {
+      this.updateDelay = updateDelay;
+      console.info('Update period changed to ' + this.updateDelay + 'ms.');
+      if (this.intervalTimer) {
+        this.stopUpdating();
+        this.startUpdating();
+      }
+    }
   }
   
-  start() {
-    if (this.intervalId) {
-      throw new Error('Tried to start tracking when starting already happened.');
+  startUpdating() {
+    if (this.intervalTimer) {
+      throw new Error('Tried to start tracking when starting already happened:' + this.intervalTimer);
       // return;
     }
     
-    this.intervalId = setInterval(updateValues, this.updateDelay);
+    this.intervalTimer = setInterval(this.updateValues.bind(this), this.updateDelay);
+    console.info('Updating started with ' + this.updateDelay + 'ms delay.');
   }
   
-  stop() {
-    if (typeof this.intervalId !== 'number') {
-      throw new Error('Tried to top tracking before it had been started.');
+  stopUpdating() {
+    if (!this.intervalTimer) {
+      throw new Error('Tried to stop tracking before it had been started.');
       // return;
     }
     
-    clearInterval(this.intervalId);
+    clearInterval(this.intervalTimer);
+    this.intervalTimer = false;
+    console.info('Updating stopped.');
   }
   
   handleDiskSpace(results) {
-    this.trackedValues.storage.devices = results;
+    this._stats.storage.devices = results;
   }
   
   handleMemoryUsage(results) {
-    this.trackedValues.memory.usage = results;
-    this.trackedValues.memory.total = results.total;
-    delete this.trackedValues.memory.usage.total;
+    this._stats.memory.usage = results;
+    this._stats.memory.total = results.total;
+    delete this._stats.memory.usage.total;
   }
   
   updateValues() {
-    storageTracker.getDiskSpace(this.handleDiskSpace.bind(this));
+    if (this.updatesSinceLastRequest > MAX_UPDATE_WITHOUT_REQUEST) {
+      return;
+    }
+    else if (this.updatesSinceLastRequest === MAX_UPDATE_WITHOUT_REQUEST) {
+      console.info('Pausing updates till further requests are made...');
+    }
+    
+    if (this.updateCounter % SLOW_UPDATE_INTERVAL === 0) {
+      storageTracker.getDiskSpace(this.handleDiskSpace.bind(this));
+    }
     memoryTracker.getMemoryUsage(this.handleMemoryUsage.bind(this));
+    this.updateCounter++;
+    this.updatesSinceLastRequest++;
   }
 }
 

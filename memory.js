@@ -16,33 +16,6 @@ let global_totalMemory;
 
 // Ported into NodeJS from python: https://apple.stackexchange.com/a/4296/216714
 
-function getMemoryUsage(callback, forceRecalculateTotalMemory = false) {
-  child_process.exec('vm_stat', (vm_error, vms_stdout, vm_stderr) => {
-    if (vm_error) {
-      throw new Error('ps execution error:' + vm_error);
-    }
-    // only spend time calculating the total memory once
-    if (!global_totalMemory || forceRecalculateTotalMemory) {
-      child_process.exec('system_profiler SPHardwareDataType | awk \'/Memory:/ {print $2,$3;}\'', (sys_error, sys_stdout, sys_sterr) => {
-        if (sys_error) {
-          throw new Error('system_profiler error:' + sys_error);
-        }
-        
-        const totalText = sys_stdout.split(' ');
-        global_totalMemory = {
-          value: Number(totalText[0].trim()),
-          unit: UNIT_SIZES.indexOf(totalText[1].trim())
-        };
-      
-        handleMemoryInfo(vms_stdout, global_totalMemory, callback);
-      });
-    }
-    else {
-      handleMemeoryInfo(vms_stdout, global_totalMemory, callback);
-    }
-  });
-}
-
 function handleMemoryInfo(stdout, totalMemory, callback) {
   const lines = stdout.split('\n').map(line => line.trim().split(':  ').map(item => item.trim()));
   
@@ -66,6 +39,33 @@ function handleMemoryInfo(stdout, totalMemory, callback) {
   if (callback) {
     callback(memory);
   }
+}
+
+function getMemoryUsage(callback, forceRecalculateTotalMemory = false) {
+  child_process.exec('vm_stat', (vm_error, vms_stdout, vm_stderr) => {
+    if (vm_error) {
+      throw new Error('ps execution error:' + vm_error);
+    }
+    // only spend time calculating the total memory once
+    if (!global_totalMemory || forceRecalculateTotalMemory) {
+      child_process.exec('system_profiler SPHardwareDataType | awk \'/Memory:/ {print $2,$3;}\'', (sys_error, sys_stdout, sys_sterr) => {
+        if (sys_error) {
+          throw new Error('system_profiler error:' + sys_error);
+        }
+        
+        const totalText = sys_stdout.split(' ');
+        global_totalMemory = {
+          value: Number(totalText[0].trim()),
+          unit: UNIT_SIZES.indexOf(totalText[1].trim())
+        };
+      
+        handleMemoryInfo(vms_stdout, global_totalMemory, callback);
+      });
+    }
+    else {
+      handleMemoryInfo(vms_stdout, global_totalMemory, callback);
+    }
+  });
 }
 
 module.exports = {

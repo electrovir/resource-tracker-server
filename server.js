@@ -1,42 +1,53 @@
 const express = require('express');
-const app = express();
 const fs = require('fs');
-const rt = require('./resource_tracker.js');
+const tracker = require('./resource_tracker.js');
+const chalk = require('chalk');
+
+const app = express();
 const port = 1337;
 const mainPage = 'index.html';
 let router = express.Router();
 
 router.use((request, response, next) => {
-  console.log(request.url);
+  const requestTime = new Date();
+  console.log(chalk`{magenta.bold ${request.originalUrl}} from {bold ${request.ip}} at {bold ${request.hostname}} ${requestTime}`);
   next();
+});
+
+router.get('/data', (request, response) => {
+  response.json(tracker.trackedValues);
 });
 
 router.get('/', (request, response) => {
   fs.readFile(mainPage, 'utf8', (error, pageHtml) => {
     if (error) {
       response.status(500).send('Error reading main page.');
+      console.error('Error reading main page:', error);
     }
     response.status(200).send(pageHtml);
   });
 });
 
-router.get('/data', (request, response) => {
-  const stuff = {
-    things: 'derp',
-    who: 'what'
-  };
-  response.json(stuff);
+router.get('/stop-updating', (request, response) => {
+  console.info('Stopping tracker updating.');
+  tracker.stopUpdating();
+});
+
+router.get('/start-updating', (request, response) => {
+  console.info('Starting tracker updating.');
+  tracker.startUpdating();
 });
 
 app.all('*', router);
 
 let server = app.listen(port, (err) => {
   if (err) {
-    return console.log('something bad happened', err);
+    return console.error('Server failed to startup with error:', err);
   }
-  // const serverHost = server.address().address;
-  // const serverPort = server.address().port;
-
-  console.log(`server is listening on ${port}`);
+  
+  tracker.changeDelay(5000);
+  tracker.startUpdating();
+  
+  console.log(chalk`{yellow Server is listening on port {bold ${port}}.}`);
 });
 
