@@ -19,6 +19,8 @@ node server.js
 - [x] cpu utilization
   * seems to be correctly reported from ``node-os-utils`` package
 - [ ] network I/O
+- [ ] fan speed
+- [ ] temperatures
 - [ ] disk I/O
 - [x] disk space usage
   * ``node-os-utils``, Monit, Finder get info, About This Mac, all disagree on free space.
